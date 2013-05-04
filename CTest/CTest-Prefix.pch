@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'CTest' target in the 'CTest' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
