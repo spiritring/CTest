@@ -11,14 +11,25 @@
 
 using namespace std;
 
+// 全局基类
 class TSObject{};
 
+// 全局回调类型定义
 typedef void (TSObject::*TpInstFun)(string sBuffer);
 
+// TS事件系统
 class TSEvent : public TSObject{
 public:
     void RegistEvent(string sEventKey, TSObject* pInst, TpInstFun pFun) {
         m_MapEvent[sEventKey][pInst] = pFun;
+    }
+    
+    void UnRegistEvent(string sEventKey, TSObject* pInst) {
+        m_MapEvent[sEventKey].erase(pInst);
+    }
+    
+    void UnRegistEvent(string sEventKey) {
+        m_MapEvent.erase(sEventKey);
     }
     
     void SendMessage(string sEventKey, string sBuffer) {
@@ -32,12 +43,16 @@ public:
                 (pInst->*pFun)(sBuffer);
             }
         }
+        else {
+            cout << "没有消息码 : " << sEventKey << endl;
+        }
     }
     
 public:
     map<string, map<TSObject*, TpInstFun> > m_MapEvent;
 };
 
+// 测试类TSGame
 class TSGame : public TSObject{
 public:
     TSGame(string name) {
@@ -56,6 +71,7 @@ public:
     string m_Name;
 };
 
+//测试类TSApp
 class TSApp : public TSObject{
 public:
     TSApp(string name) {
@@ -70,9 +86,10 @@ public:
     string m_Name;
 };
 
-
+// 声明全局事件系统
 TSEvent G_EventSys;
 
+// 入口函数
 int main(int argc, const char * argv[])
 {
     TSGame pG("TS1");
@@ -85,10 +102,14 @@ int main(int argc, const char * argv[])
     
     G_EventSys.RegistEvent("Exit", &pG, (TpInstFun)&TSGame::EventExit);
     
-    
     G_EventSys.SendMessage("Login", "WWWWW!!!!!***(FD)SFDS!");
     G_EventSys.SendMessage("Start", "WQL!");
     G_EventSys.SendMessage("Exit", "");
+    
+    G_EventSys.UnRegistEvent("Exit");
+    G_EventSys.UnRegistEvent("Exit");
+    G_EventSys.SendMessage("Exit", "");
+
     return 0;
 }
 
